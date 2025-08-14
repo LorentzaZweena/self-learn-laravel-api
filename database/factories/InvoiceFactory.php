@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,13 @@ class InvoiceFactory extends Factory
      */
     public function definition(): array
     {
+        $status = $this->faker->randomElement(['Billed', 'Paid', 'Void']);
         return [
-            //
+            'customer_id' => Customer::factory(),
+            'amount' => $this->faker->numberBetween(1000, 100000),
+            'status' => $status,
+            'billed_date' => $this->faker->dateTimeBetween('-1 year', 'now'),
+            'paid_date' => $status === 'Paid' ? $this->faker->dateTimeBetween('now', '+1 month') : null,
         ];
     }
 }

@@ -9,4 +9,9 @@ class Customer extends Model
 {
     /** @use HasFactory<\Database\Factories\CustomerFactory> */
     use HasFactory;
+    public function invoices()
+    {
+        //di mana satu Customer dapat memiliki banyak Invoice
+        return $this->hasMany(Invoice::class);
+    }
 }
