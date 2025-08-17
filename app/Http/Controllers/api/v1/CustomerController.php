@@ -3,18 +3,32 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Models\Customer;
-use App\Http\Requests\StoreCustomerRequest;
-use App\Http\Requests\UpdateCustomerRequest;
+use Illuminate\Http\Request;
+use App\Services\V1\CustomerQuery;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreCustomerRequest;
+use App\Http\Resources\v1\CustomerResource;
+use App\Http\Requests\UpdateCustomerRequest;
+use App\Http\Resources\v1\CustomerCollection;
 
 class CustomerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Customer::all();
+        $filter = new CustomerQuery();
+        $queryItems = $filter->transform($request); // [['column', 'operator', 'value']]
+        if (count($queryItems) == 0) {
+           return new CustomerCollection(Customer::paginate());
+        } else {
+           return new CustomerCollection(Customer::where($queryItems)->paginate());
+        }
+
+        // Menggunakan CustomerCollection untuk mengembalikan daftar customer
+        // dengan paginasi, yang akan mengembalikan data dalam format JSON
+        return new CustomerCollection(Customer::paginate());
     }
 
     /**
@@ -38,7 +52,9 @@ class CustomerController extends Controller
      */
     public function show(Customer $customer)
     {
-        //
+        // ini untuk mengembalikan resource customer dalam format JSON
+        // menggunakan CustomerResource yang telah dibuat
+        return new CustomerResource($customer);
     }
 
     /**
