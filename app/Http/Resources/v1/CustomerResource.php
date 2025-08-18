@@ -22,6 +22,9 @@ class CustomerResource extends JsonResource
             'address' => $this->address,
             'city' => $this->city,
             'postalCode' => $this->postal_code,
+            // ini untuk mengembalikan relasi invoices jika diminta
+            // whenLoaded digunakan untuk menghindari query yang tidak perlu
+            'invoices' => InvoiceResource::collection($this->whenLoaded('invoices')),
         ];
     }
 }

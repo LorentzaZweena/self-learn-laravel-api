@@ -19,16 +19,16 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $filter = new CustomersFilter();
-        $queryItems = $filter->transform($request); // [['column', 'operator', 'value']]
-        if (count($queryItems) == 0) {
-           return new CustomerCollection(Customer::paginate());
-        } else {
+        $filterItems = $filter->transform($request); // [['column', 'operator', 'value']]
+
+            $includeInvoices = $request->query('includeInvoices');
             // Menggunakan CustomerCollection untuk mengembalikan daftar customer
-            $customers = Customer::where($queryItems)->paginate();
-            // appends : untuk menambahkan query string dari request ke URL paginasi
-            // sehingga filter tetap berlaku saat berpindah halaman
-            return new CustomerCollection($customers->appends($request->query()));
-        }
+            $customers = Customer::where($filterItems);
+            if ($includeInvoices) {
+                $customers = $customers->with('invoices'); // Jika ada query string includeInvoices, ambil relasi invoices
+            }
+            // appends : untuk menambahkan query string dari request ke URL paginasi, sehingga filter tetap berlaku saat berpindah halaman
+            return new CustomerCollection($customers->paginate()->appends($request->query()));
     }
 
     /**
@@ -52,6 +52,10 @@ class CustomerController extends Controller
      */
     public function show(Customer $customer)
     {
+        $includeInvoices = request()->query('includeInvoices');
+        if ($includeInvoices) {
+             return new CustomerResource($customer->loadMissing('invoices'));
+        }
         // ini untuk mengembalikan resource customer dalam format JSON
         // menggunakan CustomerResource yang telah dibuat
         return new CustomerResource($customer);
