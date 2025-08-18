@@ -4,8 +4,8 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
-use App\Services\V1\CustomerQuery;
 use App\Http\Controllers\Controller;
+use App\Filters\V1\CustomersFilter;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Resources\v1\CustomerResource;
 use App\Http\Requests\UpdateCustomerRequest;
@@ -18,17 +18,17 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-        $filter = new CustomerQuery();
+        $filter = new CustomersFilter();
         $queryItems = $filter->transform($request); // [['column', 'operator', 'value']]
         if (count($queryItems) == 0) {
            return new CustomerCollection(Customer::paginate());
         } else {
-           return new CustomerCollection(Customer::where($queryItems)->paginate());
+            // Menggunakan CustomerCollection untuk mengembalikan daftar customer
+            $customers = Customer::where($queryItems)->paginate();
+            // appends : untuk menambahkan query string dari request ke URL paginasi
+            // sehingga filter tetap berlaku saat berpindah halaman
+            return new CustomerCollection($customers->appends($request->query()));
         }
-
-        // Menggunakan CustomerCollection untuk mengembalikan daftar customer
-        // dengan paginasi, yang akan mengembalikan data dalam format JSON
-        return new CustomerCollection(Customer::paginate());
     }
 
     /**
