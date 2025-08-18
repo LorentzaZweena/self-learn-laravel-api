@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 use App\Filters\V1\CustomersFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\v1\CustomerResource;
-use App\Http\Requests\UpdateCustomerRequest;
 use App\Http\Resources\v1\CustomerCollection;
 use App\Http\Requests\V1\StoreCustomerRequest;
+use App\Http\Requests\V1\updateCustomerRequest;
 
 class CustomerController extends Controller
 {
@@ -58,7 +58,8 @@ class CustomerController extends Controller
      */
     public function update(UpdateCustomerRequest $request, Customer $customer)
     {
-        //
+        $customer->update($request->all());
+        // return new CustomerResource($customer);
     }
 
     /**

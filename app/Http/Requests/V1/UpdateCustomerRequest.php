@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Http\Requests\V1;
+
+use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
+
+class UpdateCustomerRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true; // Pastikan untuk mengatur ini sesuai dengan kebijakan otorisasi Anda
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules()
+    {
+        $method = $this->method();
+        if ($method == 'PUT'){
+            return [
+                'name' => ['required'],
+                'type' => ['required', Rule::in(['VIP', 'Regular'])], // Validasi tipe customer
+                'email' => ['required', 'email'], // Validasi email
+                'address' => ['required'],
+                'city' => ['required'],
+                'state' => ['required'],
+                'postalCode' => ['required'], // Validasi kode pos, format 12345 atau 123
+            ];
+        } else {
+             return [
+                'name' => ['sometimes', 'required'],
+                'type' => ['sometimes', 'required', Rule::in(['VIP', 'Regular'])], // Validasi tipe customer
+                'email' => ['sometimes', 'required', 'email'], // Validasi email
+                'address' => ['sometimes', 'required'],
+                'city' => ['sometimes', 'required'],
+                'state' => ['sometimes', 'required'],
+                'postalCode' => ['sometimes', 'required'], // Validasi kode pos, format 12345 atau 123
+            ]; 
+        }
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'postal_code' => $this->postalCode, // Mengubah nama field dari postalCode ke postal_code
+        ]);
+    }
+}
